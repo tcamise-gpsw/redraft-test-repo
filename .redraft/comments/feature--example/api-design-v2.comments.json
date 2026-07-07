@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "feature-thread",
+      "quote": "API",
+      "quoteContext": { "prefix": "", "suffix": "" },
+      "author": { "login": "local-user", "avatarUrl": "" },
+      "body": "Feature branch review comment",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "resolved": false,
+      "replies": []
+    }
+  ]
+}
