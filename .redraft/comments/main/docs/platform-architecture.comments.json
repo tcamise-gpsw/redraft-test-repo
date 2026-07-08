@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "thread-offset-hit",
+      "quote": "Platform Architecture Review Fixture",
+      "quoteContext": {
+        "prefix": "",
+        "suffix": " This document is intentionally large"
+      },
+      "offset": 0,
+      "author": {
+        "login": "fixture-author",
+        "avatarUrl": ""
+      },
+      "body": "Offset hit seeded thread",
+      "createdAt": "2026-07-08T00:00:00.000Z",
+      "resolved": false,
+      "replies": []
+    },
+    {
+      "id": "thread-exact-fallback",
+      "quote": "cross-platform scheduling contract",
+      "quoteContext": {
+        "prefix": "preserve the ",
+        "suffix": " while allowing"
+      },
+      "offset": 0,
+      "author": {
+        "login": "fixture-author",
+        "avatarUrl": ""
+      },
+      "body": "Exact fallback seeded thread",
+      "createdAt": "2026-07-08T00:01:00.000Z",
+      "resolved": false,
+      "replies": []
+    },
+    {
+      "id": "thread-context-relocation",
+      "quote": "relocated context marker survives",
+      "quoteContext": {
+        "prefix": "The review anchor says ",
+        "suffix": " after relocation."
+      },
+      "offset": 0,
+      "author": {
+        "login": "fixture-author",
+        "avatarUrl": ""
+      },
+      "body": "Context relocation seeded thread",
+      "createdAt": "2026-07-08T00:02:00.000Z",
+      "resolved": false,
+      "replies": []
+    },
+    {
+      "id": "thread-orphaned",
+      "quote": "fully removed anchor phrase",
+      "quoteContext": {
+        "prefix": "removed prefix ",
+        "suffix": " removed suffix"
+      },
+      "offset": 0,
+      "author": {
+        "login": "fixture-author",
+        "avatarUrl": ""
+      },
+      "body": "Orphaned seeded thread",
+      "createdAt": "2026-07-08T00:03:00.000Z",
+      "resolved": false,
+      "replies": []
+    }
+  ]
+}
