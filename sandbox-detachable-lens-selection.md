@@ -36,7 +36,94 @@ See: [Sandbox FW - Lenses](https://goproinc.atlassian.net/wiki/spaces/FEH/pages/
 
 ## Proposal 1
 
-The app discovers detachable lens support through new `settings.json` command IDs. Each operation maps to a BLE command with protobuf data.
+The app discovers detachable lens support through new `settings.json` command IDs:
+
+- `GPCAMERA_DETACHABLE_LENS_CURATED_LIST_GET`
+- `GPCAMERA_DETACHABLE_LENS_ACTIVE_SET`
+- `GPCAMERA_DETACHABLE_LENS_SUPPORTED_LIST_GET`
+- `GPCAMERA_DETACHABLE_LENS_ADD_LENS`
+- `GPCAMERA_DETACHABLE_LENS_DELETE_LENS`
+
+Each maps to a BLE command with protobuf data support.
+
+### Protobufs
+
+```protobuf
+/**
+ * An individual lens object
+ *
+ * @external
+ */
+message WSDK_Lens {
+    optional int32       lens_id = 1;  // Lens ID, to be used for api operations, should be treated as ephemeral.
+    optional float  focal_length = 2;  // Focal Length of the lens in mm
+    optional string    lens_name = 3;  // The string representation of the supported lens
+    optional bool         active = 4;  // When set to true, is the active lens on the camera. Output only.
+}
+
+message WSDK_LensParameters {
+    optional float minimum_focal_length = 1;  // The minimum supported focal length of the camera
+    optional float maximum_focal_length = 2;  // The maximum supported focal length of the camera
+    repeated float   focal_length_steps = 3;  // The decimal focal length steps between the whole number focal lengths
+}
+
+enum WSDK_LensGroupType {
+    Unknown = 0;
+    Mixed   = 1;
+    Fisheye = 2;
+}
+
+message WSDK_LensGroup {
+    optional WSDK_LensGroupType group_type = 1;
+    repeated WSDK_Lens              lenses = 2;
+}
+
+message WSDK_LensList {
+    repeated WSDK_LensGroup        lense_groups = 1;  // Groups of specific lenses (fisheye, curated, etc.)
+    optional WSDK_LensParameters     parameters = 2;  // Returned when list describes all possible lenses
+    optional int32           max_curated_lenses = 3;  // Maximum curated lenses the camera can store
+}
+
+message WSDK_RequestCuratedLensList {
+    optional bool register_for_updates = 1;  // Register for active lens / curated list updates
+}
+
+message WSDK_RequestAddUserLens {
+    optional int32                   lens_id = 1;  // Lens id of a supported lens to add
+    optional float  custom_lens_focal_length = 2;  // The focal length of the user's lens to add
+}
+
+message WSDK_RequestDeleteUserLens {
+    optional int32 lens_id = 1;  // ID of the lens to delete from the curated list
+}
+
+message WSDK_RequestSetActiveLens {
+    optional int32 lens_id = 1;  // ID of the lens to set active from the curated list
+}
+```
+
+### BLE Commands
+
+```protobuf
+enum WSDK_EnumCmdId {
+    ...
+    WSDK_CMD_ID_REQUEST_DELETE_DETACHABLE_LENS          = 0x5D;  // Delete a lens from the curated list
+    WSDK_CMD_ID_REQUEST_ADD_DETACHABLE_LENS             = 0x5E;  // Add a detachable lens to the curated list
+    WSDK_CMD_ID_REQUEST_SET_ACTVE_DETACHABLE_LENS       = 0x5F;  // Set active detachable lens
+    ...
+}
+```
+
+### BLE Queries
+
+```protobuf
+enum WSDK_EnumQueryId {
+    ...
+    WSDK_QUERY_ID_REQUEST_GET_DETACHABLE_LENS_SUPPORTED_LIST = 0x6A;  // Returns WSDK_LensList
+    WSDK_QUERY_ID_REQUEST_GET_DETACHABLE_LENS_CURATED_LIST   = 0x6B;  // Returns WSDK_LensList
+    ...
+}
+```
 
 ### Command Specification
 
@@ -108,17 +195,72 @@ Everything else is firmware internals. If the camera resolves the factory/custom
 
 ### Domain Model
 
-One shared model for both factory and custom lenses containing all (and only) app-relevant fields.
+One shared model for both factory and custom lenses:
 
-### Operations
+```protobuf
+message WSDK_Lens {
+    optional int32  id           = 1;  // Opaque handle, assigned by camera
+    optional string name         = 2;  // Display label, always populated by camera
+    optional float  focal_length = 3;  // Always populated
+    optional bool   active       = 4;  // True = currently active on camera
+}
+```
 
-| Operation | Method | Description |
-| --- | --- | --- |
-| **Create (factory)** | Add from supported list | User picks from a chooser |
-| **Create (custom)** | Add by focal length | User enters a number |
-| **Read (supported)** | Get supported list | Full catalog of available lenses |
-| **Read (curated)** | Get curated list | User's curated list with active state |
-| **Update** | Set active lens | Select a lens from the curated list |
-| **Delete** | Remove from curated list | Remove a lens from the user's list |
+### Create (two methods)
 
-The two Create methods are not moving the firmware duality to a higher layer — they represent two real user actions: entering a number vs picking from a chooser.
+These are two real user actions — entering a number vs picking from a chooser — not just moving the firmware duality to a higher layer.
+
+```protobuf
+// 1. Add Catalog Lens to Curated List
+message WSDK_RequestAddCatalogLensToCuratedList {
+    optional int32 lens_id = 1;  // id from the supported catalog response
+}
+
+// 2. Add Custom Lens to Curated List
+message WSDK_RequestAddCustomLensToCuratedList {
+    optional float focal_length = 1;
+}
+
+// Response for both: ResponseGeneric
+// Note! This may need to return an ID depending on the UI flow
+```
+
+### Read (two methods)
+
+```protobuf
+// 1. READ curated list
+message WSDK_RequestGetCuratedList {
+    optional bool register_for_updates = 1;
+}
+message WSDK_ResponseLensList {
+    repeated WSDK_Lens lenses = 1;
+}
+
+// 2. READ supported catalog
+message WSDK_RequestGetSupportedLensCatalog { }
+message WSDK_ResponseSupportedLensCatalog {
+    repeated WSDK_Lens           lenses = 1;  // Named catalog lenses
+    optional WSDK_LensParameters  range = 2;  // Constraints for custom focal length input
+}
+message WSDK_LensParameters {
+    optional float min  = 1;
+    optional float max  = 2;
+    optional float step = 3;
+}
+```
+
+### Update
+
+```protobuf
+message WSDK_RequestSetActiveLens {
+    optional int32 lens_id = 1;  // id from curated list
+}
+```
+
+### Delete
+
+```protobuf
+message WSDK_RequestRemoveLensFromCuratedList {
+    optional int32 lens_id = 1;  // id from curated list
+}
+```
