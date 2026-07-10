@@ -10,7 +10,7 @@ The design of the camera can be found here:
 
 [Figma: SB Specifications](https://www.figma.com/design/7Ji5sTYtZwGbwrleclUR7P/SB-Specifications?node-id=32261-111976&t=6wPurxk8dpZAmSpy-4)
 
-![Camera UI Design](images/image-20260624-000140.png)
+![Camera UI Design](https://raw.githubusercontent.com/tcamise-gpsw/redraft-test-repo/demo/lens-selection/images/image-20260624-000140.png)
 
 ## App UI Design
 
@@ -18,7 +18,7 @@ The design for the app is currently here, though as of 7-1-2026 it is missing th
 
 [Figma: KAT Quik App](https://www.figma.com/design/2DYSCNn09DslOsWHCK5Gu5/KAT-Quik-App?node-id=919-182897&m=dev)
 
-![App UI Design](images/image-20260701-225505.png)
+![App UI Design](https://raw.githubusercontent.com/tcamise-gpsw/redraft-test-repo/demo/lens-selection/images/image-20260701-225505.png)
 
 ## Interface Requirements
 
