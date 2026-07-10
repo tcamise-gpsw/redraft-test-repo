@@ -42,13 +42,41 @@ Each of the above will have a related BLE command with protobuf data support.
 
 ### Command Specification
 
-| Command | Params | Response | Description |
-| --- | --- | --- | --- |
-| `WSDK_QUERY_ID_REQUEST_GET_DETACHABLE_LENS_SUPPORTED_LIST` | None | `WSDK_LensList` | Query to get the full list of lenses supported by the camera. The object contains 2 types of data: a range of mm describing the lens **parameters**, and a fixed list of specific **lenses**. Clients will use this data to create the 2 separate selection mechanisms available to the user — the numeric selection and the fisheye lens selection. Data in the **lenses** object will only have the `supported_lens_id` and `detachable_lens_name` fields supplied. |
-| `WSDK_QUERY_ID_REQUEST_GET_DETACHABLE_LENS_CURATED_LIST` | `WSDK_RequestCuratedLensList` | `WSDK_LensList` | Query to get the list of lenses added to the camera's curated list for quick selection. The **register_for_updates** param specifies whether the client requests dynamic updates for active lens and curated list changes. Return objects have an `id`, plus either a `focal_length` (mm) or a `supported_lens_id`. If a `supported_lens_id` is provided, `detachable_lens_name` will also be supplied. The current active lens will have `active` set to `true`. |
-| `WSDK_CMD_ID_REQUEST_ADD_DETACHABLE_LENS` | `WSDK_RequestAddUserLens` | `ResponseGeneric` | Add a lens. Use the supported list response to fill the request with either a `supported_lens_id` or a `custom_lens_focal_length`. If both values are supplied, an error is returned. |
-| `WSDK_CMD_ID_REQUEST_DELETE_DETACHABLE_LENS` | `WSDK_RequestDeleteUserLens` | `ResponseGeneric` | Remove a lens from the camera's curated list. Supply the `lens` object retrieved from the curated list query. |
-| `WSDK_CMD_ID_REQUEST_SET_ACTIVE_DETACHABLE_LENS` | `WSDK_RequestSetActiveLens` | `ResponseGeneric` | Set the described `lens` active on the camera. The lens must be from the curated list query response. |
+#### WSDK_QUERY_ID_REQUEST_GET_DETACHABLE_LENS_SUPPORTED_LIST
+
+Params: None
+Response: WSDK_LensList
+
+Query to get the full list of lenses supported by the camera. The object contains 2 types of data: a range of mm describing the lens **parameters**, and a fixed list of specific **lenses**. Clients will use this data to create the 2 separate selection mechanisms available to the user — the numeric selection and the fisheye lens selection. Data in the **lenses** object will only have the **supported_lens_id** and **detachable_lens_name** fields supplied.
+
+#### WSDK_QUERY_ID_REQUEST_GET_DETACHABLE_LENS_CURATED_LIST
+
+Params: WSDK_RequestCuratedLensList
+Response: WSDK_LensList
+
+Query to get the list of lenses that have been added to the camera's curated list of available lenses for quick selection. The input parameter **register_for_updates** specifies whether the client requests to be updated dynamically with changes in the camera status regarding the active lens and curated lens list.
+The **WSDK_LensList** return objects will have an **id**, as well as either a **focal_length** (in mm), or a **supported_lens_id**. If a supported_lens_id is provided, the **detachable_lens_name** will also be supplied as is relevant. Additionally, the current active/selected lens on the camera will have the **active** field set to true. A missing or false **active** field will indicate that the lens is not active on the camera.
+
+#### WSDK_CMD_ID_REQUEST_ADD_DETACHABLE_LENS
+
+Params: WSDK_RequestAddUserLens
+Response: ResponseGeneric
+
+Command to add a lens. Client should use the information supplied in response from WSDK_QUERY_ID_REQUEST_GET_DETACHABLE_LENS_SUPPORTED_LIST to fill WSDK_RequestAddUserLens with either a **supported_lens_id** or a value in **custom_lens_focal_length**. If both values are supplied an error will be returned.
+
+#### WSDK_CMD_ID_REQUEST_DELETE_DETACHABLE_LENS
+
+Params: WSDK_RequestDeleteUserLens
+Response: ResponseGeneric
+
+Command to remove a lens from the camera's user curated list of available lenses. Client should supply the **lens** object retrieved from the WSDK_QUERY_ID_REQUEST_GET_DETACHABLE_LENS_CURATED_LIST call.
+
+#### WSDK_CMD_ID_REQUEST_SET_ACTIVE_DETACHABLE_LENS
+
+Params: WSDK_RequestSetActiveLens
+Response: ResponseGeneric
+
+Command to set the described **lens** active on the camera. The lens must be a lens returned from the WSDK_QUERY_ID_REQUEST_GET_DETACHABLE_LENS_CURATED_LIST call.
 
 ## Proposal 2
 
