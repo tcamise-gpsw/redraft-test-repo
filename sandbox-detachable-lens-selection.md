@@ -30,7 +30,7 @@ As of 7-1-2026, the app design is missing the curated list selection screen:
 
 ## FW Design
 
-See: Sandbox FW - Lenses
+See: [Sandbox FW - Lenses](https://goproinc.atlassian.net/wiki/spaces/FEH/pages/1908768811)
 
 ---
 
